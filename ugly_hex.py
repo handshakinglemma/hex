@@ -4,7 +4,7 @@ def make_board():
     size = int(input("Size of board: "))
 
     # if board size empty set to traditional 11 by 11
-    if size == "":
+    if size == "" or size == 0:
         size = 11
 
     # creates n by n board
@@ -89,4 +89,4 @@ def main():
         moves += 1
         print_board(hex)
 
-main()
+# main()
