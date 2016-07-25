@@ -1,5 +1,5 @@
 import turtle, random, math
-import ugly_hex as uh
+import ugly_hex as h
 
 class Hexagon():
 
@@ -8,26 +8,24 @@ class Hexagon():
     angle_deg = 360 / num_sides
     angle_rad = math.radians(angle_deg)
     radius = math.cos(angle_rad / 2) * side_length
-    temp = math.sin(angle_rad / 2) * side_length
+    height = math.sin(angle_rad / 2) * side_length
 
     def __init__(self, turtle, position):
 
         self.t = turtle
         self.is_played = False
-        self.top = [position[0], position[1]]
+        self.position = [position[0], position[1]]
         
-        self.centre_x = self.top[0] + Hexagon.side_length / 2
-        self.centre_y = self.top[1] - Hexagon.radius
+        self.centre_x = self.position[0] + Hexagon.side_length / 2
+        self.centre_y = self.position[1] - Hexagon.radius
         self.centre = (self.centre_x, self.centre_y)
 
         # draw hexagon in position
         self.t.penup()
-        self.t.goto(self.top)
         self.draw_hexagon()
 
     def draw_hexagon(self):
-        self.t.goto(self.top)
-        print(self.top)
+        self.t.goto(self.position)
         self.t.pendown()
         self.t.setheading(0)
         self.t.right(Hexagon.angle_deg / 2)
@@ -44,10 +42,8 @@ class Hexagon():
         return distance < Hexagon.radius
 
     def fill_cell(self, turn):
-        print("sdf", self.top)
         self.t.penup()
-        self.t.goto(self.top)
-        print(self.top)
+        self.t.goto(self.position)
         if turn % 2 == 0:
             self.t.fillcolor("navy")
         else:
@@ -59,7 +55,7 @@ class Hexagon():
 
 class Board():
 
-    radius = Hexagon.radius * 2
+    diameter = Hexagon.radius * 2
 
     def __init__(self, turtle, board_size, starting_position):
         self.t = turtle
@@ -74,11 +70,9 @@ class Board():
             row = []
             for j in range(self.board_size):
                 row.append(Hexagon(self.t, self.start))
-                self.start[0] += Board.radius
-            self.start[0] -= Board.radius * (self.board_size - 1)
-            self.start[0] -= Board.radius / 2
-            self.start[1] -= Hexagon.temp
-            self.start[1] -= Hexagon.side_length
+                self.start[0] += Board.diameter
+            self.start[0] -= Board.diameter * (self.board_size - 1) + (Board.diameter / 2)
+            self.start[1] -= (Hexagon.height + Hexagon.side_length)
             self.board.append(row)
     
     def select(self, x, y):
@@ -90,8 +84,8 @@ class Board():
 
 def main():
     
-    hex = uh.make_board()
-    uh.make_adj_list(hex)
+    hex = h.make_board()
+    h.make_adj_list(hex)
 
     screen = turtle.Screen()
     
