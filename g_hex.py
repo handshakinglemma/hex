@@ -1,5 +1,6 @@
 import turtle, random, math
 import ugly_hex as h
+import unionfind as u
 
 class Hexagon():
 
@@ -15,6 +16,8 @@ class Hexagon():
         self.t = turtle
         self.is_played = False
         self.position = [position[0], position[1]]
+        self.n_list = []  # neighbour list
+        self.tree = []  # path 
         
         self.centre_x = self.position[0] + Hexagon.side_length / 2
         self.centre_y = self.position[1] - Hexagon.radius
@@ -57,10 +60,11 @@ class Board():
 
     diameter = Hexagon.radius * 2
 
-    def __init__(self, turtle, board_size, starting_position):
+    def __init__(self, turtle, board_size, starting_position, adj_list):
         self.t = turtle
         self.board_size = board_size
         self.start = starting_position
+        self.al = adj_list
         self.moves = 0
         self.board = []
         self.draw_board()
@@ -80,12 +84,13 @@ class Board():
             for cell in row:
                 if cell.is_selected((x, y)) and not cell.is_played:
                     cell.fill_cell(self.moves)
+                    cell.check_neighbours()
                     self.moves += 1
 
 def main():
     
     hex = h.make_board()
-    h.make_adj_list(hex)
+    adj_list = h.make_adj_list(hex)
 
     screen = turtle.Screen()
     
@@ -94,7 +99,7 @@ def main():
     t.speed(0)
     
     centre = [-250, 250]
-    board = Board(t, len(hex), centre)
+    board = Board(t, len(hex), centre, adj_list)
 
     screen.onclick(board.select)
 

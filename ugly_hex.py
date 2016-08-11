@@ -34,6 +34,8 @@ def make_adj_list(board):
             if ((i + 1) >= 0) and ((i + 1) <= (len(board[0]) - 1)) and (j >= 0) and (j <= (len(board) - 1)):
                 adj_list[(i, j)].append((i + 1, j))
 
+    return adj_list
+
 def print_board(board):
 
     # prints alpha character column indices along top of board
@@ -80,7 +82,7 @@ def add_move_adj_list(move, adj_list, board):
 def main():
     
     hex = make_board()
-    make_adj_list(hex)
+    adj_list = make_adj_list(hex)
     print_board(hex)
 
     moves = 0
