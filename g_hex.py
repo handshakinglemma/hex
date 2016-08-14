@@ -11,13 +11,16 @@ class Hexagon():
     radius = math.cos(angle_rad / 2) * side_length
     height = math.sin(angle_rad / 2) * side_length
 
-    def __init__(self, turtle, position):
+    def __init__(self, turtle, position, index):
 
         self.t = turtle
         self.is_played = False
+        self.colour = None
         self.position = [position[0], position[1]]
+        self.index = index
         self.n_list = []  # neighbour list
-        self.tree = []  # path 
+        self.tree = []  # path
+        self.parent = None
         
         self.centre_x = self.position[0] + Hexagon.side_length / 2
         self.centre_y = self.position[1] - Hexagon.radius
@@ -48,13 +51,15 @@ class Hexagon():
         self.t.penup()
         self.t.goto(self.position)
         if turn % 2 == 0:
-            self.t.fillcolor("navy")
+            colour = "navy"
         else:
-            self.t.fillcolor("lavender")
+            colour = "lavender"
+        self.t.fillcolor(colour)
         self.t.begin_fill()
         self.draw_hexagon()
         self.t.end_fill()
         self.is_played = True
+        self.colour = colour
 
 class Board():
 
@@ -64,28 +69,61 @@ class Board():
         self.t = turtle
         self.board_size = board_size
         self.start = starting_position
-        self.al = adj_list
+        self.adj_list = adj_list
         self.moves = 0
         self.board = []
+        self.trees = []
+        self.sizes = []
         self.draw_board()
+        print("trees", self.trees)
+        print("adj_list", self.adj_list)
 
     def draw_board(self):
         for i in range(self.board_size):
             row = []
             for j in range(self.board_size):
-                row.append(Hexagon(self.t, self.start))
+                index = [i, j, i * self.board_size + j]
+                self.trees.append(index[2])
+                self.sizes.append(1)
+                row.append(Hexagon(self.t, self.start, index))
                 self.start[0] += Board.diameter
             self.start[0] -= Board.diameter * (self.board_size - 1) + (Board.diameter / 2)
             self.start[1] -= (Hexagon.height + Hexagon.side_length)
             self.board.append(row)
+        print("sizes", self.sizes)
     
     def select(self, x, y):
         for row in self.board:
             for cell in row:
                 if cell.is_selected((x, y)) and not cell.is_played:
                     cell.fill_cell(self.moves)
-                    cell.check_neighbours()
+                    self.check_cell_neighbours(cell)
+                    self.win_check()
                     self.moves += 1
+
+    def check_cell_neighbours(self, cell):
+        for item in self.adj_list[(cell.index[0], cell.index[1])]:
+            nbr_cell = self.board[item[0]][item[1]]
+            if nbr_cell.colour == cell.colour:
+                u.unite(nbr_cell.index[2], cell.index[2], self.trees, self.sizes)
+                print("TREES", self.trees)
+                print("SIZES", self.sizes)
+
+    def win_check(self):
+
+        # check is navy player (top and bottom sides of board) won
+        for top_cell in self.board[0]:
+            for bottom_cell in self.board[-1]:
+                if top_cell.colour == "navy" and bottom_cell.colour == "navy" and u.find(top_cell.index[2], bottom_cell.index[2], self.trees):
+                    print("Navy player wins!")
+
+        # check if lavender player (right and left sides of board) won
+        for row1 in self.board:
+            cell = row1[0]
+            for row2 in self.board:
+                if cell.colour == "lavender" and row2[-1].colour == "lavender" and u.find(cell.index[2], row2[-1].index[2], self.trees):
+                    print("Lavender player wins!")
+        
 
 def main():
     
